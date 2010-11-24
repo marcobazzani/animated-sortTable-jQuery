@@ -16,7 +16,7 @@ jQuery.fn.sortTable = function(params) {
 	| STOP right now if anim already in progress
 	-----------*/
 
-	if ($(this).find(':animated').length > 0) return;
+	if (jQuery(this).find(':animated').length > 0) return;
 	
 	/*-----------
 	| VALIDATE TABLE & PARAMS
@@ -28,7 +28,7 @@ jQuery.fn.sortTable = function(params) {
 	var error = null;
 	var complain = null;
 	if (!params.onCol) { error = "No column specified to search on"; complain = true; }
-	else if ($(this).find('td:nth-child('+params.onCol+')').length == 0) { error = "The requested column wasn't found in the table"; complain = true; }
+	else if (jQuery(this).find('td:nth-child('+params.onCol+')').length == 0) { error = "The requested column wasn't found in the table"; complain = true; }
 	if (error) { if (complain) alert(error); return; }
 	if (!params.sortType || params.sortType != 'numeric') params.sortType = 'ascii';
 
@@ -41,10 +41,10 @@ jQuery.fn.sortTable = function(params) {
 	-----------*/
 	
 	var valuesToSort = [];
-	$(this).css('position', 'relative');
+	jQuery(this).css('position', 'relative');
 	var doneAnimating = 0;
 	var tdSelectorText = 'td'+(!params.onCol ? '' : ':nth-child('+params.onCol+')');
-	$(this).find('td:nth-child('+params.onCol+')').addClass('sortOnThisCol');
+	jQuery(this).find('td:nth-child('+params.onCol+')').addClass('sortOnThisCol');
 	var thiss = this;
 
 
@@ -59,22 +59,22 @@ jQuery.fn.sortTable = function(params) {
 	-----------*/	
 	
 	var counter = 0;
-	$(this).find('td').each(function() {
-		if ($(this).is('.sortOnThisCol') || (!params.onCol && !params.keepRelationships)) {
-			var valForSort = !params.child ? $(this).text() : (params.child != 'input' ? $(this).find(params.child).text() : $(this).find(params.child).val());
+	jQuery(this).find('td').each(function() {
+		if (jQuery(this).is('.sortOnThisCol') || (!params.onCol && !params.keepRelationships)) {
+			var valForSort = !params.child ? jQuery(this).text() : (params.child != 'input' ? jQuery(this).find(params.child).text() : jQuery(this).find(params.child).val());
 			if (params.regexp) {
 				valForSort = valForSort.match(new RegExp(params.regexp))[!params.regexpIndex ? 0 : params.regexpIndex];
 			}
 			valuesToSort.push(valForSort);
 		}
 		var thisTDHTMLHolder = document.createElement('div');
-		with($(thisTDHTMLHolder)) {
-			html($(this).html());
-			if (params.child && params.child == 'input') html(html().replace(/<input /, "<input value='"+$(this).find(params.child).val()+"'", html()));
+		with(jQuery(thisTDHTMLHolder)) {
+			html(jQuery(this).html());
+			if (params.child && params.child == 'input') html(html().replace(/<input /, "<input value='"+jQuery(this).find(params.child).val()+"'", html()));
 			css({position: 'relative', left: 0, top: 0});
 		}
-		$(this).html('');
-		$(this).append(thisTDHTMLHolder);
+		jQuery(this).html('');
+		jQuery(this).append(thisTDHTMLHolder);
 		counter++;
 	});
 	
@@ -102,7 +102,7 @@ jQuery.fn.sortTable = function(params) {
 	for(var k in valuesToSort) {
 		
 		//establish current <td> relating to this value of the array
-		var currTD = $($(this).find(tdSelectorText).filter(function() {
+		var currTD = jQuery(jQuery(this).find(tdSelectorText).filter(function() {
 			return (
 				(
 					!params.regexp
@@ -115,19 +115,19 @@ jQuery.fn.sortTable = function(params) {
 								(
 									params.child != 'input'
 									&&
-									valuesToSort[k] == $(this).find(params.child).text()
+									valuesToSort[k] == jQuery(this).find(params.child).text()
 								)
 								||
 								params.child == 'input'
 								&&
-								valuesToSort[k] == $(this).find(params.child).val()
+								valuesToSort[k] == jQuery(this).find(params.child).val()
 							)
 						)
 						||
 						(
 							!params.child
 							&&
-							valuesToSort[k] == $(this).children('div').html()
+							valuesToSort[k] == jQuery(this).children('div').html()
 						)
 					)
 				)
@@ -135,26 +135,26 @@ jQuery.fn.sortTable = function(params) {
 				(
 					params.regexp
 					&&
-					$(this).children('div').html().match(new RegExp(params.regexp))[!params.regexpIndex ? 0 : params.regexpIndex] == valuesToSort[k]
+					jQuery(this).children('div').html().match(new RegExp(params.regexp))[!params.regexpIndex ? 0 : params.regexpIndex] == valuesToSort[k]
 				)
 			)
 			&&
-			!$(this).hasClass('tableSort_TDRepopulated');
+			!jQuery(this).hasClass('tableSort_TDRepopulated');
 		}).get(0));
 		
 		//give current <td> a class to mark it as having been used, so we don't get confused with duplicate values
 		currTD.addClass('tableSort_TDRepopulated');
 		
 		//establish target <td> for this value and store as a node reference on this <td>
-		var targetTD = $($(this).find(tdSelectorText).get(k));
+		var targetTD = jQuery(jQuery(this).find(tdSelectorText).get(k));
 		currTD.get(0).toTD = targetTD;
 		
 		//if we're sorting on a particular column and maintaining relationships, also give the other <td>s in rows a node reference
 		//denoting ITS target, so they move with their lead siibling
 		if (params.keepRelationships) {
 			var counter = 0;
-			$(currTD).parent().children('td').each(function() {
-				$(this).get(0).toTD = $(targetTD.parent().children().get(counter));
+			jQuery(currTD).parent().children('td').each(function() {
+				jQuery(this).get(0).toTD = jQuery(targetTD.parent().children().get(counter));
 				counter++;
 			});
 		}
@@ -179,7 +179,7 @@ jQuery.fn.sortTable = function(params) {
 		var animateOn = params.keepRelationships ? currTD.add(currTD.siblings()) : currTD;
 		var done = 0;
 		animateOn.children('div').animate({top: moveBy_top}, !params.noAnim ? 500 : 0, null, function() {
-			if ($(this).parent().is('.sortOnThisCol') || !params.keepRelationships) {
+			if (jQuery(this).parent().is('.sortOnThisCol') || !params.keepRelationships) {
 				done++;
 				if (done == valuesToSort.length-1) thiss.tableSort_cleanUp();
 			}
@@ -199,13 +199,13 @@ jQuery.fn.tableSort_cleanUp = function() {
 	|	- once new contents for each <td> gathered, populate
 	|	- remove some identifier classes and properties
 	-----------*/
-	$(this).find('td').each(function() {
-		if($(this).get(0).toTD) $($(this).get(0).toTD).get(0).newHTML = $(this).children('div').html();
+	jQuery(this).find('td').each(function() {
+		if(jQuery(this).get(0).toTD) jQuery(jQuery(this).get(0).toTD).get(0).newHTML = jQuery(this).children('div').html();
 	});
-	$(this).find('td').each(function() { $(this).html($(this).get(0).newHTML); });
-	$('td.tableSort_TDRepopulated').removeClass('tableSort_TDRepopulated');
-	$(this).find('.sortOnThisCol').removeClass('sortOnThisCol');
-	$(this).find('td[newHTML]').attr('newHTML', '');
-	$(this).find('td[toTD]').attr('toTD', '');
+	jQuery(this).find('td').each(function() { jQuery(this).html(jQuery(this).get(0).newHTML); });
+	jQuery('td.tableSort_TDRepopulated').removeClass('tableSort_TDRepopulated');
+	jQuery(this).find('.sortOnThisCol').removeClass('sortOnThisCol');
+	jQuery(this).find('td[newHTML]').attr('newHTML', '');
+	jQuery(this).find('td[toTD]').attr('toTD', '');
 	
 };
